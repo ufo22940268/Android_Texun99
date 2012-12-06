@@ -3,6 +3,7 @@
 Install guide
 ----------
 
+
 * 下载android dk和sdk
 * $android update project -p . -t android-10
 * ndk-build && ant debug install
