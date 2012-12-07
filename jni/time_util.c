@@ -64,6 +64,7 @@ highFpsTimer() {
     usleep(HIGH_FPS_INTERVAL);
 
     highFpsTimer();
+    return NULL;
 }
 
 void*
@@ -73,4 +74,5 @@ lowFpsTimer() {
     usleep(LOW_FPS_INTERVAL);
 
     lowFpsTimer();
+    return NULL;
 }

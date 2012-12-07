@@ -240,3 +240,25 @@ void
 Java_opengl_demo_MainActivity_resetGame(JNIEnv *env, jobject thiz) {
     resetGame();
 }
+
+void
+Java_opengl_demo_MainActivity_pressUp(JNIEnv *env, jobject thiz) {
+    LOGD("press Up--------");
+    movePlaneInDirection(DIRECTION_UP);
+}
+
+void
+Java_opengl_demo_MainActivity_pressDown(JNIEnv *env, jobject thiz) {
+    LOGD("press Down--------");
+    movePlaneInDirection(DIRECTION_DOWN);
+}
+
+void
+Java_opengl_demo_MainActivity_pressLeft(JNIEnv *env, jobject thiz) {
+    movePlaneInDirection(DIRECTION_LEFT);
+}
+
+void
+Java_opengl_demo_MainActivity_pressRight(JNIEnv *env, jobject thiz) {
+    movePlaneInDirection(DIRECTION_RIGHT);
+}
