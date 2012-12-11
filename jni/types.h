@@ -24,6 +24,7 @@
  */
 #define   STATUS_NORMAL          0
 #define   STATUS_FINISHED        1
+#define   STATUS_QUITED          2
 
 //#define   KEY_UP                 GLUT_KEY_UP
 //#define   KEY_DOWN               GLUT_KEY_DOWN

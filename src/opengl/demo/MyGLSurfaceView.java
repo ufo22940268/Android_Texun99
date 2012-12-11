@@ -16,7 +16,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     public MyGLSurfaceView(Context context, AttributeSet attr) {
         super(context, attr);
         setEGLContextClientVersion(2);
-        setRenderer(new NativeRenderer());
+        setRenderer(new NativeRenderer(context));
     }
 
     @Override

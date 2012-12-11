@@ -20,8 +20,6 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        resetGame();
-
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mSensorManager.registerListener(new MySensorListener(),
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -32,7 +30,7 @@ public class MainActivity extends Activity
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
              if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-                 Log.i(TAG,"onSensorChanged");
+                 //Log.i(TAG,"onSensorChanged");
                  
                  //图解中已经解释三个值的含义
                  float x = sensorEvent.values[0];
@@ -41,7 +39,7 @@ public class MainActivity extends Activity
                  float threshold = 2;
                  float thresholdDouble = 3;
                  if (Math.abs(x) <= threshold && Math.abs(y) <= threshold) {
-                     Log.i(TAG,"None");
+                     //Log.i(TAG,"None");
                  } else {
                      if (Math.abs(x) > thresholdDouble && Math.abs(y) > thresholdDouble) {
                          if (x < 0 && y < 0) {
@@ -91,10 +89,10 @@ public class MainActivity extends Activity
     @Override
     protected void onStop() {
         super.onStop();
-        resetGame();
+        quitGame();
     }
 
-    public native void resetGame();
+    public native void quitGame();
     public native void pressUp();
     public native void pressDown();
     public native void pressLeft();

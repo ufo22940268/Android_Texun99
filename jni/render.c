@@ -5,6 +5,10 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <string.h>
+
+#include <android/asset_manager_jni.h>
+#include <android/asset_manager.h>
 
 #include "util.h"
 
@@ -18,23 +22,6 @@ long currentTime;
 extern int flyStatus;
 
 pthread_mutex_t gNodeLock;
-
-static const char vertexSource[] = 
-    "attribute vec4 vPosition;\n"
-    "attribute float vPointSize;\n"
-    "uniform mat4 uMVPMatrix;\n"
-    "uniform mat4 uOthoMatrix;\n"
-    "void main() {\n"
-        "gl_Position = vPosition*uMVPMatrix*uOthoMatrix;\n"
-        "gl_PointSize = vPointSize;\n"
-    "}";
-
-static const char fragmentSource[] =
-    "precision mediump float;\n"
-    "uniform vec4 vColor;\n"
-    "void main() {\n"
-    "    gl_FragColor = vColor;\n"
-    "}";
 
 GLuint gProgram;
 
@@ -62,11 +49,15 @@ GLuint gPosHandler;
 GLuint gSizeHandler; 
 GLuint gOrthoHandler; 
 
+bool DEBUG = 0;
+
 static void checkGlError(const char* op) {
-    GLint error;
-    for (error = glGetError(); error; error
-            = glGetError()) {
-        LOGD("after %s() glError (0x%x)\n", op, error);
+    if (DEBUG) {
+        GLint error;
+        for (error = glGetError(); error; error
+                = glGetError()) {
+            LOGD("after %s() glError (0x%x)\n", op, error);
+        }
     }
 }
 
@@ -115,7 +106,7 @@ void initPlaneCoords() {
     }
 }
 
-void loadSource() {
+void loadSource(char* vertexSource, char* fragmentSource) {
     gProgram = glCreateProgram();
 
     GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
@@ -124,6 +115,9 @@ void loadSource() {
     glAttachShader(gProgram, fragmentShader);
 
     glLinkProgram(gProgram);
+
+    free(vertexSource);
+    free(fragmentSource);
 }
 
 void
@@ -152,12 +146,43 @@ void
 stopThreads() {
 }
 
+
+AAsset*
+getAsset(JNIEnv *env, jobject thiz, char *fileName) {
+    AAssetManager *manager = AAssetManager_fromJava(env, thiz);
+    return AAssetManager_open(manager, fileName, AASSET_MODE_STREAMING);
+}
+
+char*
+readSource(AAsset *asset) {
+    int length = AAsset_getLength(asset);
+    char *str = (char*)malloc(sizeof(char)*length);
+    memset(str, 0, length);
+    LOGD("-----------------length:%d------------------", length);
+    if (asset != NULL) {
+        AAsset_read(asset, str, sizeof(char)*length);
+        LOGD("-----------------%s------------------", str);
+        AAsset_close(asset);
+    }
+
+    return str;
+
+}
+
 void
-Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz) {
+Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetManager) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+    gameStatus = STATUS_NORMAL;
+    initDatas();
+
     initLocks();
-    loadSource();
+
+    AAsset *asset = getAsset(env, assetManager, "vertex.glsl");
+    char *vertexSource = readSource(asset);
+    asset = getAsset(env, assetManager, "fragment.glsl");
+    char *fragmentSource = readSource(asset);
+    loadSource(vertexSource, fragmentSource);
     initPlaneCoords();
 
     gProjectionHandler = glGetUniformLocation(gProgram, "uMVPMatrix");
@@ -168,10 +193,13 @@ Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz) {
     checkGlError("3");
 
     startTimer();
+
+    (*env)->DeleteLocalRef(env, assetManager);
 }
 
 void
-Java_opengl_demo_NativeRenderer_change(JNIEnv *env, jobject thiz, int width, int height) {
+Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
+        jobject thiz, int width, int height) {
     glViewport(0, 0, width, height);
     sWindowWidth = width;
     sWindowHeight = height;
@@ -196,24 +224,27 @@ void finishGame()
     }
 }
 
-void resetGame() 
-{
+void quitGame() {
+    gameStatus = STATUS_QUITED;
+
+    initDatas();
+    stopThreads();
+    destroyLocks();
+}
+
+void initDatas() {
     resetKeyStatus();
     resetTimeData();
     freeAllNodes();
 
     startTime = time(NULL);
     lastingTime = -1;
-    gameStatus = STATUS_NORMAL;
     flyStatus = FLY_VOID;
-
-    stopThreads();
-    destroyLocks();
 }
 
 void
 Java_opengl_demo_NativeRenderer_test(JNIEnv *env, jobject thiz) {
-    /*pthread_t *thread = (pthread_t*)malloc(sizeof(pthread_t));*/
+    /*pthread_t *thread = (pthread_t*)malloc(sizeof(pthread_t));e/
     /*pthread_create(thread, NULL, test_print, NULL);*/
 }
 
@@ -237,19 +268,19 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
 }
 
 void
-Java_opengl_demo_MainActivity_resetGame(JNIEnv *env, jobject thiz) {
-    resetGame();
+Java_opengl_demo_MainActivity_quitGame(JNIEnv *env, jobject thiz) {
+    quitGame();
 }
 
 void
 Java_opengl_demo_MainActivity_pressUp(JNIEnv *env, jobject thiz) {
-    LOGD("press Up--------");
+    /*LOGD("press Up--------");*/
     movePlaneInDirection(DIRECTION_UP);
 }
 
 void
 Java_opengl_demo_MainActivity_pressDown(JNIEnv *env, jobject thiz) {
-    LOGD("press Down--------");
+    /*LOGD("press Down--------");*/
     movePlaneInDirection(DIRECTION_DOWN);
 }
 

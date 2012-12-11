@@ -13,6 +13,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := render
 LOCAL_CFLAGS    := -Wall -g
 LOCAL_SRC_FILES := render.c
-LOCAL_LDLIBS    := -llog -lGLESv2 -lm
+LOCAL_LDLIBS    := -llog -lGLESv2 -lm -landroid
 LOCAL_STATIC_LIBRARIES := render_static
 include $(BUILD_SHARED_LIBRARY)
