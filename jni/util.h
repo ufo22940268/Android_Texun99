@@ -5,6 +5,8 @@
 #include <jni.h>
 #include <android/log.h>
 #include <GLES2/gl2.h>
+#include <android/asset_manager_jni.h>
+#include <android/asset_manager.h>
 
 #include "types.h"
 
@@ -96,6 +98,8 @@ extern void finishGame();
 extern void lockNode();
 extern void unlockNode();
 
+char* readSource(AAsset *asset);
+void initDatas();
 
 //
 ////Test refactored old interface.

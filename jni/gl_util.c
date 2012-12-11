@@ -20,7 +20,7 @@ loadIdentity(GLuint handle) {
 }
 
 void 
-loadScreenProjection() {
+loadScreenProjection(int handler) {
     GLfloat ratio = (GLfloat)sWindowHeight/sWindowWidth;
     assert(ratio != 0);
 
@@ -34,7 +34,7 @@ loadScreenProjection() {
         0.0f             , 0.0f             , 1.0f , 0.0f                          ,
         0.0f             , 0.0f             , 0.0f , 1.0f                          ,
     };
-    glUniformMatrix4fv(gOrthoHandler, 1, GL_FALSE, identity);
+    glUniformMatrix4fv(handler, 1, GL_FALSE, identity);
 
     sVirtualWidth = right;
     sVirtualHeight = top;

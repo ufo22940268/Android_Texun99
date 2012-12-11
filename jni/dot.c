@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <math.h>
 #include "util.h"
-/*#include "new_util.h"*/
 
 const int PROFILE = 1;
+
+extern GLuint gCuteShitProgram;
 
 extern float planeX;
 extern float planeY;
@@ -18,6 +19,12 @@ extern GLfloat sVirtualHeight;
 
 extern int flyStatus;
 
+GLfloat gTexCoords[] = {
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+};
 void chooseEdge(int *x, int *y)
 {
     extern int global_seed;
@@ -85,7 +92,47 @@ void updatePosition()
         cur = cur->next;
     }
 
+    //TODO Not very sure whether this is to delete.
     /*deleteDots();*/
+}
+
+void createDotPos(dot *d, GLfloat* pos) {
+/*    float x = d->x;*/
+    /*float y = d->y;*/
+    /*float size = 5;*/
+    /*float temp[] = {*/
+        /*x - size, y + size,*/
+        /*x + size, y + size,*/
+        /*x - size, y - size,*/
+        /*x + size, y - size,*/
+    /*};*/
+
+    /*pos = temp;*/
+    pos[0] = (GLfloat)d->x;
+    pos[1] = (GLfloat)d->y;
+}
+
+void drawShitDot(dot *d) {
+    glUseProgram(gCuteShitProgram);
+    
+    GLuint posHandler = glGetAttribLocation(gCuteShitProgram, "v_Position");
+    GLuint texCoordHandler = glGetAttribLocation(gCuteShitProgram, "a_TexCoord");
+    GLuint mvpHandler = glGetUniformLocation(gCuteShitProgram, "u_MVPMatrix");
+    GLuint samplerHandler = glGetUniformLocation(gCuteShitProgram, "u_sampler");
+
+    loadScreenProjection(mvpHandler);
+
+    glUniform1i(samplerHandler, 0);
+
+    GLfloat pos[2];
+    createDotPos(d, pos);
+    glVertexAttribPointer(posHandler, 2, GL_FLOAT, GL_FALSE, 0, pos);
+    glEnableVertexAttribArray(posHandler);
+
+    glVertexAttribPointer(texCoordHandler, 2, GL_FLOAT, GL_FALSE, 0, gTexCoords);
+    glEnableVertexAttribArray(texCoordHandler);
+
+    glDrawArrays(GL_POINTS, 0, 1);
 }
 
 void drawDot(dot *d)
@@ -128,7 +175,8 @@ void drawDots()
     linked_node *cur = getHeaderNode();
     while (cur) {
         dot *d = cur->dot;
-        drawDot(d);
+        /*drawDot(d);*/
+        drawShitDot(d);
         cur = cur->next;
     }
 }

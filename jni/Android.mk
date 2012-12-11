@@ -5,7 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := render_static
 LOCAL_CFLAGS    := -Wall -g
 LOCAL_SRC_FILES := gl_util.c util.c dot.c controller.c linked_nodes.c plane.c render.c time_data.c time_util.c
-LOCAL_LDLIBS    := -llog -lGLESv2 -lm 
+LOCAL_LDLIBS    := -llog -lGLESv2 -lm -landroid
 include $(BUILD_STATIC_LIBRARY)
 
 #Build shared library for android apk.

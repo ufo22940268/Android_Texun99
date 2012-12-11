@@ -23,7 +23,8 @@ extern int flyStatus;
 
 pthread_mutex_t gNodeLock;
 
-GLuint gProgram;
+GLuint gEnvProgram;
+GLuint gCuteShitProgram;
 
 GLfloat triangleCoords[] = {
     0.0f, 50.0f,
@@ -49,7 +50,7 @@ GLuint gPosHandler;
 GLuint gSizeHandler; 
 GLuint gOrthoHandler; 
 
-bool DEBUG = 0;
+bool DEBUG = true;
 
 static void checkGlError(const char* op) {
     if (DEBUG) {
@@ -66,6 +67,12 @@ void debugError(char* str) {
     if (error != GL_NO_ERROR) {
         LOGD("error: %s\t error code: %x ", str, error);
     }
+}
+
+AAsset*
+getAsset(JNIEnv *env, jobject thiz, char *fileName) {
+    AAssetManager *manager = AAssetManager_fromJava(env, thiz);
+    return AAssetManager_open(manager, fileName, AASSET_MODE_STREAMING);
 }
 
 GLuint loadShader(GLenum type, const GLchar* pSource) {
@@ -106,18 +113,25 @@ void initPlaneCoords() {
     }
 }
 
-void loadSource(char* vertexSource, char* fragmentSource) {
-    gProgram = glCreateProgram();
+GLuint loadSource(JNIEnv *env, jobject assetManager, char* vertexFile, char* fragmentFile) {
+    AAsset *asset = getAsset(env, assetManager, vertexFile);
+    char *vertexSource = readSource(asset);
+    asset = getAsset(env, assetManager, fragmentFile);
+    char *fragmentSource = readSource(asset);
+
+    GLuint program = glCreateProgram();
 
     GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
-    glAttachShader(gProgram, vertexShader);
+    glAttachShader(program, vertexShader);
     GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentSource);
-    glAttachShader(gProgram, fragmentShader);
+    glAttachShader(program, fragmentShader);
 
-    glLinkProgram(gProgram);
+    glLinkProgram(program);
 
     free(vertexSource);
     free(fragmentSource);
+
+    return program;
 }
 
 void
@@ -146,27 +160,24 @@ void
 stopThreads() {
 }
 
-
-AAsset*
-getAsset(JNIEnv *env, jobject thiz, char *fileName) {
-    AAssetManager *manager = AAssetManager_fromJava(env, thiz);
-    return AAssetManager_open(manager, fileName, AASSET_MODE_STREAMING);
-}
-
 char*
 readSource(AAsset *asset) {
     int length = AAsset_getLength(asset);
-    char *str = (char*)malloc(sizeof(char)*length);
-    memset(str, 0, length);
+    char *str = (char*)malloc(sizeof(char)*length + 3);
+    memset(str, 0, length + 3);
     LOGD("-----------------length:%d------------------", length);
     if (asset != NULL) {
-        AAsset_read(asset, str, sizeof(char)*length);
+        AAsset_read(asset, str, sizeof(char)*length + 3);
         LOGD("-----------------%s------------------", str);
         AAsset_close(asset);
     }
-
     return str;
+}
 
+void
+initPrograms(JNIEnv *env, jobject assetManager) {
+    gEnvProgram = loadSource(env, assetManager, "environment_vertex.glsl", "environment_fragment.glsl");
+    gCuteShitProgram = loadSource(env, assetManager, "cute_shit_vertex.glsl", "cute_shit_fragment.glsl");
 }
 
 void
@@ -174,22 +185,17 @@ Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetMan
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     gameStatus = STATUS_NORMAL;
+
     initDatas();
-
     initLocks();
-
-    AAsset *asset = getAsset(env, assetManager, "vertex.glsl");
-    char *vertexSource = readSource(asset);
-    asset = getAsset(env, assetManager, "fragment.glsl");
-    char *fragmentSource = readSource(asset);
-    loadSource(vertexSource, fragmentSource);
+    initPrograms(env, assetManager);
     initPlaneCoords();
 
-    gProjectionHandler = glGetUniformLocation(gProgram, "uMVPMatrix");
-    gColorHandler = glGetUniformLocation(gProgram, "vColor");
-    gPosHandler = glGetAttribLocation(gProgram, "vPosition");
-    gSizeHandler = glGetAttribLocation(gProgram, "vPointSize");
-    gOrthoHandler = glGetUniformLocation(gProgram, "uOthoMatrix");
+    gProjectionHandler = glGetUniformLocation(gEnvProgram, "uMVPMatrix");
+    gColorHandler = glGetUniformLocation(gEnvProgram, "vColor");
+    gPosHandler = glGetAttribLocation(gEnvProgram, "vPosition");
+    gSizeHandler = glGetAttribLocation(gEnvProgram, "vPointSize");
+    gOrthoHandler = glGetUniformLocation(gEnvProgram, "uOthoMatrix");
     checkGlError("3");
 
     startTimer();
@@ -244,15 +250,15 @@ void initDatas() {
 
 void
 Java_opengl_demo_NativeRenderer_test(JNIEnv *env, jobject thiz) {
-    /*pthread_t *thread = (pthread_t*)malloc(sizeof(pthread_t));e/
-    /*pthread_create(thread, NULL, test_print, NULL);*/
+    /**pthread_t *thread = (pthread_t*)malloc(sizeof(pthread_t));*/
+    /*[>pthread_create(thread, NULL, test_print, NULL);<]*/
 }
 
 void
 Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
     lockNode();
 
-    glUseProgram(gProgram);
+    glUseProgram(gEnvProgram);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
