@@ -20,6 +20,7 @@ extern GLfloat sVirtualHeight;
 
 extern int flyStatus;
 
+extern GLuint *gTextureHandlers;
 GLfloat gTexCoords[] = {
     0.0f, 0.0f,
     1.0f, 0.0f,
@@ -98,24 +99,16 @@ void updatePosition()
 }
 
 void createDotPos(dot *d, GLfloat* pos) {
-    /*float x = d->x;*/
-    /*float y = d->y;*/
-    /*float size = 5;*/
-    /*float temp[] = {*/
-        /*x - size, y + size,*/
-        /*x + size, y + size,*/
-        /*x - size, y - size,*/
-        /*x + size, y - size,*/
-    /*};*/
-
-    /*pos = temp;*/
-    pos[0] = 50.0f;
-    pos[1] = 50.0f;
+    float x = d->x;
+    float y = d->y;
+    float size = 5;
+    pos[0] = x - size; pos[1] = y + size;
+    pos[2] = x + size; pos[3] = y + size;
+    pos[4] = x - size; pos[5] = y - size;
+    pos[6] = x + size; pos[7] = y - size;
 }
 
 void drawShitDot(dot *d) {
-    glUseProgram(gCuteShitProgram);
-    
     GLuint posHandler = glGetAttribLocation(gCuteShitProgram, "a_Position");
     GLuint texCoordHandler = glGetAttribLocation(gCuteShitProgram, "a_TexCoord");
     GLuint mvpHandler = glGetUniformLocation(gCuteShitProgram, "u_MVPMatrix");
@@ -123,17 +116,17 @@ void drawShitDot(dot *d) {
 
     loadScreenProjection(mvpHandler);
 
-    glUniform1i(samplerHandler, 0);
-
     GLfloat pos[4*2];
     createDotPos(d, pos);
     glVertexAttribPointer(posHandler, 2, GL_FLOAT, GL_FALSE, 0, pos);
     glEnableVertexAttribArray(posHandler);
 
+    /*glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]); */
+    glUniform1i(samplerHandler, 0);
     glVertexAttribPointer(texCoordHandler, 2, GL_FLOAT, GL_FALSE, 0, gTexCoords);
     glEnableVertexAttribArray(texCoordHandler);
 
-    glDrawArrays(GL_POINTS, 0, 1);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void drawDot(dot *d)
@@ -173,6 +166,7 @@ void setDotColor()
 
 void drawDots()
 {
+    glUseProgram(gCuteShitProgram);
     linked_node *cur = getHeaderNode();
     while (cur) {
         dot *d = cur->dot;

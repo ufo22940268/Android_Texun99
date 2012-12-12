@@ -36,6 +36,8 @@ GLfloat triangleColor[] = {
     1.0f, 0.0f, 0.0f, 1.0f,
 };
 
+GLuint gTextureHandlers[1];
+
 GLfloat *gPlaneCoords;
 
 GLuint sWindowHeight;
@@ -183,10 +185,10 @@ readSource(AAsset *asset) {
     int length = AAsset_getLength(asset);
     char *str = (char*)malloc(sizeof(char)*length + 3);
     memset(str, 0, length + 3);
-    LOGD("-----------------length:%d------------------", length);
+    /*LOGD("-----------------length:%d------------------", length);*/
     if (asset != NULL) {
         AAsset_read(asset, str, sizeof(char)*length + 3);
-        LOGD("-----------------%s------------------", str);
+        /*LOGD("-----------------%s------------------", str);*/
         AAsset_close(asset);
     }
     return str;
@@ -200,15 +202,22 @@ initPrograms(JNIEnv *env, jobject assetManager) {
     checkGlError("3");
 }
 
+void initTextures() {
+    glGenTextures(1, gTextureHandlers);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
 void
 Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetManager) {
-    /*glClearColor(0.0f, 0.0f, 0.0f, 1.0f);*/
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    /*glClearColor(1.0f, 1.0f, 1.0f, 1.0f);*/
 
     gameStatus = STATUS_NORMAL;
 
     initDatas();
     initLocks();
+    initTextures();
     initPrograms(env, assetManager);
     initPlaneCoords();
 
@@ -287,9 +296,9 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
     drawPlane();
     checkGlError("plane");
 
-    /*drawDots();*/
+    drawDots();
     dot d = {.x = 50, .y = 50};
-    drawShitDot(&d);
+    /*drawShitDot(&d);*/
     checkGlError("dot");
 
     unlockNode();
