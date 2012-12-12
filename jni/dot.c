@@ -98,7 +98,7 @@ void updatePosition()
 }
 
 void createDotPos(dot *d, GLfloat* pos) {
-/*    float x = d->x;*/
+    /*float x = d->x;*/
     /*float y = d->y;*/
     /*float size = 5;*/
     /*float temp[] = {*/
@@ -109,8 +109,8 @@ void createDotPos(dot *d, GLfloat* pos) {
     /*};*/
 
     /*pos = temp;*/
-    pos[0] = (GLfloat)d->x;
-    pos[1] = (GLfloat)d->y;
+    pos[0] = 50.0f;
+    pos[1] = 50.0f;
 }
 
 void drawShitDot(dot *d) {
@@ -125,7 +125,7 @@ void drawShitDot(dot *d) {
 
     glUniform1i(samplerHandler, 0);
 
-    GLfloat pos[2];
+    GLfloat pos[4*2];
     createDotPos(d, pos);
     glVertexAttribPointer(posHandler, 2, GL_FLOAT, GL_FALSE, 0, pos);
     glEnableVertexAttribArray(posHandler);

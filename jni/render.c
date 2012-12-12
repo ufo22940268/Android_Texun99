@@ -202,7 +202,8 @@ initPrograms(JNIEnv *env, jobject assetManager) {
 
 void
 Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetManager) {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    /*glClearColor(0.0f, 0.0f, 0.0f, 1.0f);*/
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     gameStatus = STATUS_NORMAL;
 
