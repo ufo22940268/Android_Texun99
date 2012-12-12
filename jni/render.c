@@ -206,6 +206,10 @@ void initTextures() {
     glGenTextures(1, gTextureHandlers);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void
@@ -297,7 +301,7 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
     checkGlError("plane");
 
     drawDots();
-    dot d = {.x = 50, .y = 50};
+    /*dot d = {.x = 50, .y = 50};*/
     /*drawShitDot(&d);*/
     checkGlError("dot");
 
