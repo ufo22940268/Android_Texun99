@@ -6,6 +6,7 @@
 const int PROFILE = 1;
 
 extern GLuint gCuteShitProgram;
+extern GLuint gViewProjectionHandler;
 
 extern float planeX;
 extern float planeY;
@@ -115,7 +116,7 @@ void createDotPos(dot *d, GLfloat* pos) {
 void drawShitDot(dot *d) {
     glUseProgram(gCuteShitProgram);
     
-    GLuint posHandler = glGetAttribLocation(gCuteShitProgram, "v_Position");
+    GLuint posHandler = glGetAttribLocation(gCuteShitProgram, "a_Position");
     GLuint texCoordHandler = glGetAttribLocation(gCuteShitProgram, "a_TexCoord");
     GLuint mvpHandler = glGetUniformLocation(gCuteShitProgram, "u_MVPMatrix");
     GLuint samplerHandler = glGetUniformLocation(gCuteShitProgram, "u_sampler");
@@ -141,7 +142,7 @@ void drawDot(dot *d)
     setDotColor();
 
     //Ensure the projection matrix is the default value.
-    loadIdentity(gProjectionHandler);
+    loadIdentity(gViewProjectionHandler);
 
     GLfloat size[] = {DOT_SIZE};
     glEnableVertexAttribArray(gSizeHandler);

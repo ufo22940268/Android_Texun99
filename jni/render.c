@@ -44,20 +44,22 @@ GLuint sWindowWidth;
 GLfloat sVirtualHeight;
 GLfloat sVirtualWidth;
 
-GLuint gProjectionHandler;
+GLuint gViewProjectionHandler;
 GLuint gColorHandler; 
 GLuint gPosHandler; 
 GLuint gSizeHandler; 
-GLuint gOrthoHandler; 
+GLuint gModelProjectionHandler; 
 
 bool DEBUG = true;
+bool error_printed = false;
 
 static void checkGlError(const char* op) {
-    if (DEBUG) {
+    if (DEBUG && !error_printed) {
         GLint error;
         for (error = glGetError(); error; error
                 = glGetError()) {
             LOGD("after %s() glError (0x%x)\n", op, error);
+            error_printed = true;
         }
     }
 }
@@ -127,6 +129,22 @@ GLuint loadSource(JNIEnv *env, jobject assetManager, char* vertexFile, char* fra
     glAttachShader(program, fragmentShader);
 
     glLinkProgram(program);
+    GLint linkStatus = GL_FALSE;
+    glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+    if (linkStatus != GL_TRUE) {
+        GLint bufLength = 0;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
+        if (bufLength) {
+            char* buf = (char*) malloc(bufLength);
+            if (buf) {
+                glGetProgramInfoLog(program, bufLength, NULL, buf);
+                LOGD("Could not link program:\n%s\n", buf);
+                free(buf);
+            }
+        }
+        glDeleteProgram(program);
+        program = 0;
+    }
 
     free(vertexSource);
     free(fragmentSource);
@@ -177,7 +195,9 @@ readSource(AAsset *asset) {
 void
 initPrograms(JNIEnv *env, jobject assetManager) {
     gEnvProgram = loadSource(env, assetManager, "environment_vertex.glsl", "environment_fragment.glsl");
+    checkGlError("2");
     gCuteShitProgram = loadSource(env, assetManager, "cute_shit_vertex.glsl", "cute_shit_fragment.glsl");
+    checkGlError("3");
 }
 
 void
@@ -191,12 +211,11 @@ Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetMan
     initPrograms(env, assetManager);
     initPlaneCoords();
 
-    gProjectionHandler = glGetUniformLocation(gEnvProgram, "uMVPMatrix");
+    gViewProjectionHandler = glGetUniformLocation(gEnvProgram, "u_ViewProjection");
     gColorHandler = glGetUniformLocation(gEnvProgram, "vColor");
     gPosHandler = glGetAttribLocation(gEnvProgram, "vPosition");
     gSizeHandler = glGetAttribLocation(gEnvProgram, "vPointSize");
-    gOrthoHandler = glGetUniformLocation(gEnvProgram, "uOthoMatrix");
-    checkGlError("3");
+    gModelProjectionHandler = glGetUniformLocation(gEnvProgram, "u_ModelProjection");
 
     startTimer();
 
@@ -262,12 +281,14 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    loadScreenProjection(gOrthoHandler);
+    loadScreenProjection(gModelProjectionHandler);
 
     drawPlane();
     checkGlError("plane");
 
-    drawDots();
+    /*drawDots();*/
+    dot d = {.x = 50, .y = 50};
+    drawShitDot(&d);
     checkGlError("dot");
 
     unlockNode();

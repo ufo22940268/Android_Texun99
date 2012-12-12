@@ -101,6 +101,8 @@ extern void unlockNode();
 char* readSource(AAsset *asset);
 void initDatas();
 
+void drawShitDot(dot *d);
+
 //
 ////Test refactored old interface.
 //extern void drawCircle();
