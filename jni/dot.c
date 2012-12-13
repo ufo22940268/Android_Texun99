@@ -5,28 +5,6 @@
 
 const int PROFILE = 1;
 
-extern GLuint gCuteShitProgram;
-extern GLuint gViewProjectionHandler;
-
-extern float planeX;
-extern float planeY;
-
-extern int speed;
-extern int dotCount;
-extern bool dotStatusSpeedUp;
-
-extern GLfloat sVirtualWidth;
-extern GLfloat sVirtualHeight;
-
-extern int flyStatus;
-
-extern GLuint *gTextureHandlers;
-GLfloat gTexCoords[] = {
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-};
 void chooseEdge(int *x, int *y)
 {
     extern int global_seed;
@@ -109,10 +87,11 @@ void createDotPos(dot *d, GLfloat* pos) {
 }
 
 void drawShitDot(dot *d) {
-    GLuint posHandler = glGetAttribLocation(gCuteShitProgram, "a_Position");
-    GLuint texCoordHandler = glGetAttribLocation(gCuteShitProgram, "a_TexCoord");
-    GLuint mvpHandler = glGetUniformLocation(gCuteShitProgram, "u_MVPMatrix");
-    GLuint samplerHandler = glGetUniformLocation(gCuteShitProgram, "u_sampler");
+    GLuint posHandler = glGetAttribLocation(gTexProgram, "a_Position");
+    GLuint texCoordHandler = glGetAttribLocation(gTexProgram, "a_TexCoord");
+    GLuint mvpHandler = glGetUniformLocation(gTexProgram, "u_MVPMatrix");
+    GLuint samplerHandler = glGetUniformLocation(gTexProgram, "u_sampler");
+    GLuint colorHandler = glGetUniformLocation(gTexProgram, "u_color");
 
     loadScreenProjection(mvpHandler);
 
@@ -121,10 +100,11 @@ void drawShitDot(dot *d) {
     glVertexAttribPointer(posHandler, 2, GL_FLOAT, GL_FALSE, 0, pos);
     glEnableVertexAttribArray(posHandler);
 
-    /*glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]); */
     glUniform1i(samplerHandler, 0);
-    glVertexAttribPointer(texCoordHandler, 2, GL_FLOAT, GL_FALSE, 0, gTexCoords);
+    glVertexAttribPointer(texCoordHandler, 2, GL_FLOAT, GL_FALSE, 0, gShitTexCoords);
     glEnableVertexAttribArray(texCoordHandler);
+
+    setDotColor(colorHandler);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
@@ -132,7 +112,7 @@ void drawShitDot(dot *d) {
 void drawDot(dot *d)
 {
     //*The void color of dot is 0xfffffff*
-    setDotColor();
+    /*setDotColor();*/
 
     //Ensure the projection matrix is the default value.
     loadIdentity(gViewProjectionHandler);
@@ -151,22 +131,27 @@ void drawDot(dot *d)
     glDisableVertexAttribArray(gSizeHandler);
 }
 
-void setDotColor()
+void setDotColor(GLuint handler)
 {
     if (flyStatus == (FLY_BEND | FLY_SPEED_UP)) {
-        setColor(COLOR_BEND_SPEED_UP);
+        setColor(handler, COLOR_BEND_SPEED_UP);
     } else if (flyStatus == FLY_BEND) {
-        setColor(COLOR_BEND);
+        setColor(handler, COLOR_BEND);
     } else if (flyStatus == FLY_SPEED_UP) {
-        setColor(COLOR_SPEED_UP);
+        setColor(handler, COLOR_SPEED_UP);
     } else {
-        setColor(COLOR_VOID);
+        setColor(handler, COLOR_VOID);
     }
 }
 
 void drawDots()
 {
-    glUseProgram(gCuteShitProgram);
+    glUseProgram(gTexProgram);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]);
+    checkGlError("bind texture");
+
     linked_node *cur = getHeaderNode();
     while (cur) {
         dot *d = cur->dot;

@@ -9,7 +9,7 @@ float planeY = 0;
 void drawPlane() 
 {
     translate(planeX, planeY);
-    setColor(0x66ccff);
+    setColor(gColorHandler, 0x66ccff);
     drawCircle();
 }
 

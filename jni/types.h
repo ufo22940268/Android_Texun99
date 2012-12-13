@@ -61,7 +61,13 @@
 #define   DIRECTION_RIGHT_DOWN   7
 #define   DIRECTION_VOID         8
 
+#define   INDEX_TRACING_STRING   0
+
 #define   DATA_TIME_CYCLE        20
+
+#define   TEXTURE_SIZE           512
+
+#define   ASSET_TAG              "assert"
 
 typedef struct {
     int x;
@@ -78,3 +84,22 @@ struct linked_node_s {
     struct linked_node_s *next;
 }; 
 typedef struct linked_node_s linked_node;
+
+extern GLuint gTexProgram;
+extern GLuint gViewProjectionHandler;
+
+extern float planeX;
+extern float planeY;
+
+extern int speed;
+extern int dotCount;
+extern bool dotStatusSpeedUp;
+
+extern GLfloat sVirtualWidth;
+extern GLfloat sVirtualHeight;
+
+extern int flyStatus;
+
+extern GLuint gTextureHandlers[1];
+extern GLfloat *gShitTexCoords;
+

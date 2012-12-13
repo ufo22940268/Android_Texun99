@@ -1,12 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <string.h>
-
 #include <android/asset_manager_jni.h>
 #include <android/asset_manager.h>
 
@@ -24,7 +15,7 @@ extern int flyStatus;
 pthread_mutex_t gNodeLock;
 
 GLuint gEnvProgram;
-GLuint gCuteShitProgram;
+GLuint gTexProgram;
 
 GLfloat triangleCoords[] = {
     0.0f, 50.0f,
@@ -37,6 +28,8 @@ GLfloat triangleColor[] = {
 };
 
 GLuint gTextureHandlers[1];
+GLfloat *gShitTexCoords;
+GLfloat *gTracingTexCoords;
 
 GLfloat *gPlaneCoords;
 
@@ -51,20 +44,6 @@ GLuint gColorHandler;
 GLuint gPosHandler; 
 GLuint gSizeHandler; 
 GLuint gModelProjectionHandler; 
-
-bool DEBUG = true;
-bool error_printed = false;
-
-static void checkGlError(const char* op) {
-    if (DEBUG && !error_printed) {
-        GLint error;
-        for (error = glGetError(); error; error
-                = glGetError()) {
-            LOGD("after %s() glError (0x%x)\n", op, error);
-            error_printed = true;
-        }
-    }
-}
 
 void debugError(char* str) {
     int error = glGetError();
@@ -154,8 +133,7 @@ GLuint loadSource(JNIEnv *env, jobject assetManager, char* vertexFile, char* fra
     return program;
 }
 
-void
-startTimer() {
+void startTimer() {
     pthread_t *highThread = (pthread_t*)malloc(sizeof(pthread_t));
     pthread_create(highThread, NULL, highFpsTimer, NULL);
 
@@ -165,23 +143,19 @@ startTimer() {
     startTime = time(NULL);
 }
 
-void
-initLocks() {
+void initLocks() {
     pthread_mutex_init(&gNodeLock, NULL);
 }
 
-void
-destroyLocks() {
+void destroyLocks() {
     pthread_mutex_destroy(&gNodeLock);
 }
 
 //TODO stop update threads when program exit.
-void
-stopThreads() {
+void stopThreads() {
 }
 
-char*
-readSource(AAsset *asset) {
+char* readSource(AAsset *asset) {
     int length = AAsset_getLength(asset);
     char *str = (char*)malloc(sizeof(char)*length + 3);
     memset(str, 0, length + 3);
@@ -194,28 +168,51 @@ readSource(AAsset *asset) {
     return str;
 }
 
-void
-initPrograms(JNIEnv *env, jobject assetManager) {
+void initPrograms(JNIEnv *env, jobject assetManager) {
     gEnvProgram = loadSource(env, assetManager, "environment_vertex.glsl", "environment_fragment.glsl");
-    checkGlError("2");
-    gCuteShitProgram = loadSource(env, assetManager, "cute_shit_vertex.glsl", "cute_shit_fragment.glsl");
-    checkGlError("3");
+    gTexProgram = loadSource(env, assetManager, "cute_shit_vertex.glsl", "cute_shit_fragment.glsl");
 }
 
 void initTextures() {
     glGenTextures(1, gTextureHandlers);
+    glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]);
+
+    checkGlError("gen texture");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    gShitTexCoords = createTextureCoords(0, 32, 32);
+    gTracingTexCoords = createTextureCoords(32, 100, 32);
 }
 
 void
-Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetManager) {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    /*glClearColor(1.0f, 1.0f, 1.0f, 1.0f);*/
+Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz) {
+}
+
+void initScreenCoords(int width, int height) {
+    sWindowWidth = width;
+    sWindowHeight = height;
+
+    GLfloat ratio = (GLfloat)sWindowHeight/sWindowWidth;
+    assert(ratio != 0);
+    GLfloat right  = 100.0f;
+    GLfloat top    = 100.0f*ratio;
+    sVirtualWidth = right;
+    sVirtualHeight = top;
+}
+
+void Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
+        jobject thiz, int width, int height, jobject assetManager) {
+    initScreenCoords(width, height);
+
+    glViewport(0, 0, width, height);
+    /*glClearColor(0.0f, 0.0f, 0.0f, 1.0f);*/
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     gameStatus = STATUS_NORMAL;
 
@@ -234,15 +231,6 @@ Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz, jobject assetMan
     startTimer();
 
     (*env)->DeleteLocalRef(env, assetManager);
-}
-
-void
-Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
-        jobject thiz, int width, int height) {
-    glViewport(0, 0, width, height);
-    sWindowWidth = width;
-    sWindowHeight = height;
-    debugError("4");
 }
 
 void
@@ -283,8 +271,17 @@ void initDatas() {
 
 void
 Java_opengl_demo_NativeRenderer_test(JNIEnv *env, jobject thiz) {
-    /**pthread_t *thread = (pthread_t*)malloc(sizeof(pthread_t));*/
-    /*[>pthread_create(thread, NULL, test_print, NULL);<]*/
+    //Test generate texture coords.
+    /*GLfloat ratio = (GLfloat)32/512;*/
+    /*GLfloat *matrix1 = createTextureCoords(32, 32);*/
+    /*LOGD("%f,  %f\n%f,  %f\n%f,  %f\n%f %f",*/
+            /*matrix1[0], matrix1[1], matrix1[2], matrix1[3], matrix1[4], matrix1[5], matrix1[6], matrix1[7]);*/
+    /*LOGD("--------------------------------------------------");*/
+
+    /*GLfloat *matrix2 = createTextureCoords(100, 32);*/
+    /*LOGD("%f,  %f\n%f,  %f\n%f,  %f\n%f %f",*/
+            /*matrix2[0], matrix2[1], matrix2[2], matrix2[3], matrix2[4], matrix2[5], matrix2[6], matrix2[7]);*/
+    /*LOGD("--------------------------------------------------");*/
 }
 
 void
@@ -298,12 +295,12 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
     loadScreenProjection(gModelProjectionHandler);
 
     drawPlane();
-    checkGlError("plane");
+    /*drawDots();*/
 
-    drawDots();
-    /*dot d = {.x = 50, .y = 50};*/
-    /*drawShitDot(&d);*/
-    checkGlError("dot");
+    //debug.
+    /*LOGD("debug: %f, %f", sVirtualWidth, sVirtualHeight);*/
+    /*drawString(-sVirtualWidth, sVirtualHeight, INDEX_TRACING_STRING);*/
+    drawString(0, 0, INDEX_TRACING_STRING);
 
     unlockNode();
 }

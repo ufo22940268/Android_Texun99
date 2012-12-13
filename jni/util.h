@@ -1,6 +1,11 @@
+#include <assert.h>
+#include <math.h>
+#include <pthread.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include <jni.h>
 #include <android/log.h>
@@ -21,12 +26,12 @@ void movePlane(int x, int y);
 void movePlaneInDirection(int key);
 void drawDots();
 void setDotColor();
-void drawString(int x, int y, char* str);
+void drawString(int x, int y, int index);
 void drawFlyStatusString(char* str);
 bool isCollision();
 void drawDot(dot *d);
 
-void setColor(int color);
+void setColor(GLuint handler, int color);
 
 void updateDots();
 void chooseEdge(int *x, int *y);
@@ -103,6 +108,13 @@ void initDatas();
 
 void drawShitDot(dot *d);
 
+
+extern bool DEBUG;
+extern bool error_printed;
+extern void checkGlError(const char* op); 
+
+GLfloat *createTextureCoords(int top, int height, int width); 
+GLfloat *createStringTextureCoords(int index); 
 //
 ////Test refactored old interface.
 //extern void drawCircle();
