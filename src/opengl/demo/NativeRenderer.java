@@ -33,12 +33,12 @@ public class NativeRenderer implements GLSurfaceView.Renderer  {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         change(width, height, mContext.getAssets());
+        loadTexture();
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         init();
-        loadTexture();
 
         //For test.
         test();
@@ -47,12 +47,10 @@ public class NativeRenderer implements GLSurfaceView.Renderer  {
     private void loadTexture() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        //Bitmap bitmap = 
-            //BitmapFactory.decodeResource(
-                    //mContext.getResources(), R.drawable.all_in_one, options);
         Bitmap bitmap = 
             BitmapFactory.decodeResource(
-                    mContext.getResources(), R.drawable.test, options);
+                    mContext.getResources(), R.drawable.all_in_one, options);
+
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
     }

@@ -10,8 +10,6 @@ long startTime;
 long lastingTime = -1;
 long currentTime;
 
-extern int flyStatus;
-
 pthread_mutex_t gNodeLock;
 
 GLuint gEnvProgram;
@@ -30,11 +28,13 @@ GLfloat triangleColor[] = {
 GLuint gTextureHandlers[1];
 GLfloat *gShitTexCoords;
 GLfloat *gTracingTexCoords;
+GLfloat *gSpeedupTexCoords;
+GLfloat *gSpeedupAndTracingTexCoords;
 
 GLfloat *gPlaneCoords;
 
-GLuint sWindowHeight;
-GLuint sWindowWidth;
+int sWindowHeight;
+int sWindowWidth;
 
 GLfloat sVirtualHeight;
 GLfloat sVirtualWidth;
@@ -175,23 +175,39 @@ void initPrograms(JNIEnv *env, jobject assetManager) {
 
 void initTextures() {
     glGenTextures(1, gTextureHandlers);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]);
-
     checkGlError("gen texture");
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
+    checkGlError("bind texture");
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    gShitTexCoords = createTextureCoords(0, 32, 32);
-    gTracingTexCoords = createTextureCoords(32, 100, 32);
+    int top = 0;
+    gShitTexCoords = createTextureCoords(top, 32, 32);
+    top += 32;
+    gTracingTexCoords = createTextureCoords(top, 100, 32);
+    top += 32;
+    gSpeedupTexCoords = createTextureCoords(top, 100, 32);
+    top += 32;
+    gSpeedupAndTracingTexCoords = createTextureCoords(top, 200, 32);
 }
 
 void
 Java_opengl_demo_NativeRenderer_init(JNIEnv *env, jobject thiz) {
+    int i;
+    for (i = 0; i < 5; i ++) {
+        LOGD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    }
+    LOGD("++++++++++++++++++++++++++++++++++++++++++Start to run app++++++++++++++++++++++++++++++++++++++++++");
+    for (i = 0; i < 5; i ++) {
+        LOGD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    }
+    
 }
 
 void initScreenCoords(int width, int height) {
@@ -209,6 +225,7 @@ void initScreenCoords(int width, int height) {
 void Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
         jobject thiz, int width, int height, jobject assetManager) {
     initScreenCoords(width, height);
+    initPrograms(env, assetManager);
 
     glViewport(0, 0, width, height);
     /*glClearColor(0.0f, 0.0f, 0.0f, 1.0f);*/
@@ -219,7 +236,6 @@ void Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
     initDatas();
     initLocks();
     initTextures();
-    initPrograms(env, assetManager);
     initPlaneCoords();
 
     gViewProjectionHandler = glGetUniformLocation(gEnvProgram, "u_ViewProjection");
@@ -295,12 +311,13 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
     loadScreenProjection(gModelProjectionHandler);
 
     drawPlane();
-    /*drawDots();*/
+    drawDots();
+    drawFlyStatus();
 
-    //debug.
-    /*LOGD("debug: %f, %f", sVirtualWidth, sVirtualHeight);*/
-    /*drawString(-sVirtualWidth, sVirtualHeight, INDEX_TRACING_STRING);*/
-    drawString(0, 0, INDEX_TRACING_STRING);
+    //test draw background.
+    /*drawBackground();*/
+
+    checkGlError("step");
 
     unlockNode();
 }

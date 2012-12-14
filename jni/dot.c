@@ -89,6 +89,7 @@ void createDotPos(dot *d, GLfloat* pos) {
 void drawShitDot(dot *d) {
     GLuint posHandler = glGetAttribLocation(gTexProgram, "a_Position");
     GLuint texCoordHandler = glGetAttribLocation(gTexProgram, "a_TexCoord");
+
     GLuint mvpHandler = glGetUniformLocation(gTexProgram, "u_MVPMatrix");
     GLuint samplerHandler = glGetUniformLocation(gTexProgram, "u_sampler");
     GLuint colorHandler = glGetUniformLocation(gTexProgram, "u_color");
@@ -107,6 +108,8 @@ void drawShitDot(dot *d) {
     setDotColor(colorHandler);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    checkGlError("dot");
 }
 
 void drawDot(dot *d)
@@ -147,9 +150,6 @@ void setDotColor(GLuint handler)
 void drawDots()
 {
     glUseProgram(gTexProgram);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]);
     checkGlError("bind texture");
 
     linked_node *cur = getHeaderNode();

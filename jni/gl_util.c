@@ -9,13 +9,10 @@ extern GLfloat sVirtualHeight;
 extern GLuint gViewProjectionHandler;
 extern GLuint gModelProjectionHandler;
 
-extern GLfloat *gTracingTexCoords;
-
 bool DEBUG = true;
 bool error_printed = false;
 
-void 
-loadIdentity(GLuint handle) {
+void loadIdentity(GLuint handle) {
     GLfloat identity[16] = {
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
@@ -25,8 +22,9 @@ loadIdentity(GLuint handle) {
     glUniformMatrix4fv(handle, 1, GL_FALSE, identity);
 }
 
-void 
-loadScreenProjection(GLuint handler) {
+void loadScreenProjection(GLuint handler) {
+    assert(sWindowHeight != 0);
+    assert(sWindowWidth != 0);
     GLfloat ratio = (GLfloat)sWindowHeight/sWindowWidth;
     assert(ratio != 0);
 
@@ -88,7 +86,10 @@ GLfloat *createStringTextureCoords(int index) {
     switch(index) {
         case INDEX_TRACING_STRING:
             return gTracingTexCoords;
-
+        case INDEX_SPEEDUP_STRING:
+            return gSpeedupTexCoords;
+        case INDEX_SPEEDUP_AND_TRACING_STRING:
+            return gSpeedupAndTracingTexCoords;
         default:
             LOGD("no such string texture index.");
             return 0;

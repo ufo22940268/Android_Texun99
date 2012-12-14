@@ -105,9 +105,7 @@ extern void unlockNode();
 
 char* readSource(AAsset *asset);
 void initDatas();
-
 void drawShitDot(dot *d);
-
 
 extern bool DEBUG;
 extern bool error_printed;
@@ -115,7 +113,10 @@ extern void checkGlError(const char* op);
 
 GLfloat *createTextureCoords(int top, int height, int width); 
 GLfloat *createStringTextureCoords(int index); 
-//
-////Test refactored old interface.
-//extern void drawCircle();
-//e
+void printArray(GLfloat *array, int length);
+
+void drawTracingString();
+void drawSpeedUpString();
+void drawTracingAndSpeedUpString();
+void drawFlyStatus();
+void drawTexture();

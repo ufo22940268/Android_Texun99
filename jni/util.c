@@ -9,7 +9,6 @@ int global_seed = 0;
 
 extern long startTime;
 extern GLuint gTexProgram;
-extern 
 
 float toRadians(int degree) {
     return M_PI/180*degree;
@@ -32,13 +31,33 @@ void createStringPos(GLfloat x, GLfloat y, GLfloat *pos) {
     pos[6] = x + width ; pos[7] = y - height ;
 }
 
+void drawDotStatusString(int index) {
+    drawString(-sVirtualWidth, sVirtualHeight, index);
+}
+
+void drawTracingString() {
+    drawDotStatusString(INDEX_TRACING_STRING);
+}
+
+void drawSpeedUpString() {
+    drawDotStatusString(INDEX_SPEEDUP_STRING);
+}
+
+void drawTracingAndSpeedUpString() {
+    drawDotStatusString(INDEX_SPEEDUP_AND_TRACING_STRING);
+}
+
 void drawString(int x, int y, int index) 
 {
-    glUseProgram(gTexProgram);
+    GLfloat texturePos[4*2];
+    createStringPos((float)x, (float)y, texturePos);
+    GLfloat *textureCoords = createStringTextureCoords(index);
+    GLfloat color[4] = {1, 1, 1, 1};
+    drawTexture(texturePos, textureCoords, color);
+}
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gTextureHandlers[0]);
-    checkGlError("bind string texture");
+void drawTexture(GLfloat *texturePos, GLfloat *textureCoords, GLfloat *color) {
+    glUseProgram(gTexProgram);
 
     GLuint posHandler = glGetAttribLocation(gTexProgram, "a_Position");
     GLuint texCoordHandler = glGetAttribLocation(gTexProgram, "a_TexCoord");
@@ -48,20 +67,31 @@ void drawString(int x, int y, int index)
 
     loadScreenProjection(mvpHandler);
 
-    GLfloat pos[4*2];
-    createStringPos((float)x, (float)y, pos);
-    glVertexAttribPointer(posHandler, 2, GL_FLOAT, GL_FALSE, 0, pos);
+    glVertexAttribPointer(posHandler, 2, GL_FLOAT, GL_FALSE, 0, texturePos);
     glEnableVertexAttribArray(posHandler);
 
     glUniform1i(samplerHandler, 0);
-    glVertexAttribPointer(texCoordHandler, 2, GL_FLOAT, GL_FALSE, 0, createStringTextureCoords(index));
+    glVertexAttribPointer(texCoordHandler, 2, GL_FLOAT, GL_FALSE, 0, textureCoords);
     glEnableVertexAttribArray(texCoordHandler);
 
-    GLfloat stringColor[4] = {1, 1, 1, 1};
-    glUniform4fv(colorHandler, 1, stringColor);
+    glUniform4fv(colorHandler, 1, color);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    checkGlError("draw string text.");
+}
+
+void drawFlyStatus()
+{
+    if (flyStatus == FLY_VOID) {
+        return;
+    } else if (flyStatus == (FLY_BEND | FLY_SPEED_UP)) {
+        drawTracingAndSpeedUpString();
+    } else if (flyStatus == FLY_BEND) {
+        drawTracingString();
+    } else if (flyStatus == FLY_SPEED_UP) {
+        drawSpeedUpString();
+    } else {
+        LOGD("status string error\n");
+    }
 }
 
 void drawFlyStatusString(char* str) {
@@ -86,11 +116,22 @@ void setColor(GLuint handler, int color)
     float r = (float)((color&0xff0000)>>16)/255;
     float g = (float)((color&0x00ff00)>>8)/255; 
     float b = (float)((color&0x0000ff)>>0)/255;
-    GLfloat ar[] = {r, g, b, 1};
+    GLfloat ar[] = {r, g, b, 1.0};
     glUniform4fv(handler, 1, ar);
 }
 
 double distant(double xa, double ya, double xb, double yb) 
 {
     return sqrt(pow(xa - xb, 2) + pow(ya - yb, 2));
+}
+
+void printArray(GLfloat* array, int length) {
+    int i;
+    for (i = 0; i < length; i ++) {
+        LOGD("index: %d\tvalue: %f", i, *array);
+        array += 1;
+        if (i%2 != 0) {
+            LOGD("----------------------------------------------------------------------------------------------------");
+        }
+    }
 }

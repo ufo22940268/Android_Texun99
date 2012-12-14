@@ -62,6 +62,8 @@
 #define   DIRECTION_VOID         8
 
 #define   INDEX_TRACING_STRING   0
+#define   INDEX_SPEEDUP_STRING   1
+#define   INDEX_SPEEDUP_AND_TRACING_STRING   2
 
 #define   DATA_TIME_CYCLE        20
 
@@ -87,19 +89,18 @@ typedef struct linked_node_s linked_node;
 
 extern GLuint gTexProgram;
 extern GLuint gViewProjectionHandler;
-
 extern float planeX;
 extern float planeY;
-
 extern int speed;
 extern int dotCount;
 extern bool dotStatusSpeedUp;
-
 extern GLfloat sVirtualWidth;
 extern GLfloat sVirtualHeight;
-
 extern int flyStatus;
-
 extern GLuint gTextureHandlers[1];
 extern GLfloat *gShitTexCoords;
+extern GLfloat *gTracingTexCoords;
+extern GLfloat *gSpeedupTexCoords;
+extern GLfloat *gSpeedupAndTracingTexCoords;
+extern int flyStatus;
 
