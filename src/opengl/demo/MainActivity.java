@@ -36,10 +36,8 @@ public class MainActivity extends Activity
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        touch();
-        return true;
+    private void reloadTexture() {
+        System.out.println("++++++++++++++++++++" + "reload texture" + "++++++++++++++++++++");
     }
 
     private class MySensorListener implements SensorEventListener {

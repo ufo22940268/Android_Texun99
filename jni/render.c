@@ -25,11 +25,12 @@ GLfloat triangleColor[] = {
     1.0f, 0.0f, 0.0f, 1.0f,
 };
 
-GLuint gTextureHandlers[1];
 GLfloat *gShitTexCoords;
 GLfloat *gTracingTexCoords;
 GLfloat *gSpeedupTexCoords;
 GLfloat *gSpeedupAndTracingTexCoords;
+GLfloat *gScoreTexCoords;
+GLfloat *gTrollTexCoords;
 
 GLfloat *gPlaneCoords;
 
@@ -39,6 +40,7 @@ int sWindowWidth;
 GLfloat sVirtualHeight;
 GLfloat sVirtualWidth;
 
+GLuint gTextureHandlers[1];
 GLuint gViewProjectionHandler;
 GLuint gColorHandler; 
 GLuint gPosHandler; 
@@ -133,7 +135,7 @@ GLuint loadSource(JNIEnv *env, jobject assetManager, char* vertexFile, char* fra
     return program;
 }
 
-void startTimer() {
+void startThread() {
     pthread_t *highThread = (pthread_t*)malloc(sizeof(pthread_t));
     pthread_create(highThread, NULL, highFpsTimer, NULL);
 
@@ -149,10 +151,6 @@ void initLocks() {
 
 void destroyLocks() {
     pthread_mutex_destroy(&gNodeLock);
-}
-
-//TODO stop update threads when program exit.
-void stopThreads() {
 }
 
 char* readSource(AAsset *asset) {
@@ -195,6 +193,11 @@ void initTextures() {
     gSpeedupTexCoords = createTextureCoords(top, 100, 32);
     top += 32;
     gSpeedupAndTracingTexCoords = createTextureCoords(top, 200, 32);
+
+    gScoreTexCoords = createTextureCoords(top + 32, 100, 70);
+
+    top = 211;
+    gTrollTexCoords = createTextureCoords(top, 128, 128);
 }
 
 void
@@ -244,7 +247,7 @@ void Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
     gSizeHandler = glGetAttribLocation(gEnvProgram, "vPointSize");
     gModelProjectionHandler = glGetUniformLocation(gEnvProgram, "u_ModelProjection");
 
-    startTimer();
+    startThread();
 
     (*env)->DeleteLocalRef(env, assetManager);
 }
@@ -271,7 +274,6 @@ void quitGame() {
     gameStatus = STATUS_QUITED;
 
     initDatas();
-    stopThreads();
     destroyLocks();
 }
 
@@ -283,6 +285,9 @@ void initDatas() {
     startTime = time(NULL);
     lastingTime = -1;
     flyStatus = FLY_VOID;
+
+    planeX = 0;
+    planeY = 0;
 }
 
 void
@@ -300,6 +305,22 @@ Java_opengl_demo_NativeRenderer_test(JNIEnv *env, jobject thiz) {
     /*LOGD("--------------------------------------------------");*/
 }
 
+void loadScoreTexture(JNIEnv *env, jobject thiz) {
+    jclass cls = (*env)->GetObjectClass(env, thiz);
+    jmethodID method = (*env)->GetMethodID(env, cls, "loadScoreTexture", "(F)V");
+    (*env)->CallVoidMethod(env, thiz, method, 50.0f);
+}
+
+//TODO draw score status when game finished and when user touch screen 
+//restart game.
+void loadTexture(JNIEnv *env, jobject thiz) {
+    jclass cls = (*env)->GetObjectClass(env, thiz);
+    jmethodID method = (*env)->GetMethodID(env, cls, "loadScoreTexture", "(F)V");
+    (*env)->CallVoidMethod(env, thiz, method, 50.0f);
+}
+
+bool neededReloadBackground = false;
+
 void
 Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
     lockNode();
@@ -310,12 +331,22 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
 
     loadScreenProjection(gModelProjectionHandler);
 
-    /*drawPlane();*/
-    /*drawDots();*/
-    /*drawFlyStatus();*/
 
-    //test draw background.
-    test_drawBackground();
+    drawTrollFace();
+    drawDots();
+    drawFlyStatus();
+
+    if (isFinished()) {
+        loadScoreTexture(env, thiz);
+        drawScore();
+    }
+
+    /*//test draw background.*/
+    /*if (neededReloadBackground) {*/
+        /*loadScoreTexture(env, thiz);*/
+        /*neededReloadBackground = false;*/
+    /*}*/
+    /*test_drawBackground();*/
 
     checkGlError("step");
 
@@ -350,7 +381,7 @@ Java_opengl_demo_MainActivity_pressRight(JNIEnv *env, jobject thiz) {
 }
 
 void
-Java_opengl_demo_MainActivity_touch(JNIEnv *env, jobject thiz) {
+Java_opengl_demo_MyGLSurfaceView_touch(JNIEnv *env, jobject thiz) {
     LOGD("touch");
-    
+    neededReloadBackground = true;
 }

@@ -80,45 +80,34 @@ bool shouldSpeedUpDotsPermanentaly();
 
 //----------------------------------------------------------------------------------------------------
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "renderer", __VA_ARGS__) 
-
-extern GLuint gProjectionHandler;
-extern GLuint gColorHandler; 
-extern GLuint gPosHandler; 
-extern GLfloat *gPlaneCoords;
-extern GLuint gSizeHandler; 
-
-extern void loadIdentity(GLuint handle); 
-extern void loadScreenProjection(GLuint handle); 
-extern void translate(int x, int y);
-
-extern void* viewTimer();
-extern void* dataTimer();
-extern void* bendAngleTimer();
-extern void* moveTimer();
-extern void* lowFpsTimer();
-extern void* highFpsTimer();
-
-extern void finishGame();
-
-extern void lockNode();
-extern void unlockNode();
-
-char* readSource(AAsset *asset);
-void initDatas();
-void drawShitDot(dot *d);
-
-extern bool DEBUG;
-extern bool error_printed;
-extern void checkGlError(const char* op); 
-
-GLfloat *createTextureCoords(int top, int height, int width); 
 GLfloat *createStringTextureCoords(int index); 
-void printArray(GLfloat *array, int length);
-
-void drawTracingString();
-void drawSpeedUpString();
-void drawTracingAndSpeedUpString();
+GLfloat *createTextureCoords(int top, int height, int width); 
+char* readSource(AAsset *asset);
+void checkGlError(const char* op); 
 void drawFlyStatus();
+void drawShitDot(dot *d);
+void drawSpeedUpString();
 void drawTexture();
-
+void drawTracingAndSpeedUpString();
+void drawTracingString();
+void drawTrollFace();
+void drawScore();
+void finishGame();
+void initDatas();
+void loadIdentity(GLuint handle); 
+void loadScreenProjection(GLuint handle); 
+void lockNode();
+void printArray(GLfloat *array, int length);
 void test_drawBackground();
+void translate(int x, int y);
+void unlockNode();
+void* bendAngleTimer();
+void* dataTimer();
+void* highFpsTimer();
+void* lowFpsTimer();
+void* moveTimer();
+void* viewTimer();
+bool isRunning();
+bool isQuited();
+bool isFinished();
+

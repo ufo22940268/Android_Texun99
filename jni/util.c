@@ -39,3 +39,15 @@ void printArray(GLfloat* array, int length) {
         }
     }
 }
+
+bool isRunning() {
+    return gameStatus == STATUS_NORMAL;
+}
+
+bool isQuited() {
+    return gameStatus == STATUS_QUITED;
+}
+
+bool isFinished() {
+    return gameStatus == STATUS_FINISHED;
+}
