@@ -87,20 +87,20 @@ struct linked_node_s {
 }; 
 typedef struct linked_node_s linked_node;
 
+extern GLfloat *gShitTexCoords;
+extern GLfloat *gSpeedupAndTracingTexCoords;
+extern GLfloat *gSpeedupTexCoords;
+extern GLfloat *gTracingTexCoords;
+extern GLfloat sVirtualHeight;
+extern GLfloat sVirtualWidth;
 extern GLuint gTexProgram;
+extern GLuint gTextureHandlers[1];
 extern GLuint gViewProjectionHandler;
+extern bool dotStatusSpeedUp;
 extern float planeX;
 extern float planeY;
-extern int speed;
 extern int dotCount;
-extern bool dotStatusSpeedUp;
-extern GLfloat sVirtualWidth;
-extern GLfloat sVirtualHeight;
 extern int flyStatus;
-extern GLuint gTextureHandlers[1];
-extern GLfloat *gShitTexCoords;
-extern GLfloat *gTracingTexCoords;
-extern GLfloat *gSpeedupTexCoords;
-extern GLfloat *gSpeedupAndTracingTexCoords;
 extern int flyStatus;
-
+extern int speed;
+extern long startTime;

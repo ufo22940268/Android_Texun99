@@ -44,13 +44,20 @@ public class NativeRenderer implements GLSurfaceView.Renderer  {
         test();
     }
 
+    private int testCount = 0;
     private void loadTexture() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        Bitmap bitmap = 
-            BitmapFactory.decodeResource(
+        Bitmap solidBitmap = BitmapFactory.decodeResource(
                     mContext.getResources(), R.drawable.all_in_one, options);
 
+        Bitmap  bitmap = solidBitmap.copy(solidBitmap.getConfig(), true);
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setTextSize(32);
+        paint.setColor(0x66ccffff);
+        canvas.drawText("hongbosb not sb   " + testCount, 0, 32*5, paint);
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
     }

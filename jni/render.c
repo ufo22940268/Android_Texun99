@@ -310,12 +310,12 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
 
     loadScreenProjection(gModelProjectionHandler);
 
-    drawPlane();
-    drawDots();
-    drawFlyStatus();
+    /*drawPlane();*/
+    /*drawDots();*/
+    /*drawFlyStatus();*/
 
     //test draw background.
-    /*drawBackground();*/
+    test_drawBackground();
 
     checkGlError("step");
 
@@ -347,4 +347,10 @@ Java_opengl_demo_MainActivity_pressLeft(JNIEnv *env, jobject thiz) {
 void
 Java_opengl_demo_MainActivity_pressRight(JNIEnv *env, jobject thiz) {
     movePlaneInDirection(DIRECTION_RIGHT);
+}
+
+void
+Java_opengl_demo_MainActivity_touch(JNIEnv *env, jobject thiz) {
+    LOGD("touch");
+    
 }

@@ -5,6 +5,16 @@ import android.os.Bundle;
 import android.opengl.*;
 import android.hardware.*;
 import android.util.Log;
+import android.util.*;
+import android.widget.*;
+import android.view.*;
+import android.content.*;
+import android.app.*;
+import android.os.*;
+import android.database.*;
+import android.net.*;
+
+import java.util.*;
 
 public class MainActivity extends Activity
 {
@@ -24,6 +34,12 @@ public class MainActivity extends Activity
         mSensorManager.registerListener(new MySensorListener(),
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        touch();
+        return true;
     }
 
     private class MySensorListener implements SensorEventListener {
@@ -97,4 +113,5 @@ public class MainActivity extends Activity
     public native void pressDown();
     public native void pressLeft();
     public native void pressRight();
+    public native void touch();
 }

@@ -120,3 +120,5 @@ void drawSpeedUpString();
 void drawTracingAndSpeedUpString();
 void drawFlyStatus();
 void drawTexture();
+
+void test_drawBackground();
