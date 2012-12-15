@@ -39,7 +39,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements View.OnTouchListen
     }
 
     private void requestReloadTexture() {
-        mRenderer.reloadTexture();
+        mRenderer.loadScoreTexture(50.0f);
     }
     
     private native void touch();

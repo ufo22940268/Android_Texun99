@@ -194,7 +194,7 @@ void initTextures() {
     top += 32;
     gSpeedupAndTracingTexCoords = createTextureCoords(top, 200, 32);
 
-    gScoreTexCoords = createTextureCoords(top + 32, 100, 70);
+    gScoreTexCoords = createTextureCoords(top + 32, 350, 70);
 
     top = 211;
     gTrollTexCoords = createTextureCoords(top, 128, 128);
