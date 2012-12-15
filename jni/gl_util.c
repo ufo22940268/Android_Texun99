@@ -175,6 +175,21 @@ void drawFlyStatus()
     }
 }
 
+void drawScore() {
+    GLfloat color[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat x = 0;
+    GLfloat y = 0;
+    GLfloat width = 100;
+    GLfloat height = 64;
+    GLfloat pos[] = {
+        x - width/2, y + height/2,
+        x + width/2, y + height/2,
+        x - width/2, y - height/2,
+        x + width/2, y - height/2,
+    };
+    drawTexture(pos, gScoreTexCoords, color);
+}
+
 void setColor(GLuint handler, int color) 
 {
     float r = (float)((color&0xff0000)>>16)/255;

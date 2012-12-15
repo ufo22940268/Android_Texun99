@@ -18,7 +18,7 @@ import java.nio.*;
 import javax.microedition.khronos.opengles.*;
 import javax.microedition.khronos.egl.*;
 
-public class NativeRenderer implements GLSurfaceView.Renderer  {
+public class NativeRenderer implements GLSurfaceView.Renderer {
     private Context mContext;
 
     public NativeRenderer(Context context) {
@@ -44,7 +44,7 @@ public class NativeRenderer implements GLSurfaceView.Renderer  {
         test();
     }
 
-    private int testCount = 0;
+    private float time; 
     private void loadTexture() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
@@ -54,12 +54,19 @@ public class NativeRenderer implements GLSurfaceView.Renderer  {
         Bitmap  bitmap = solidBitmap.copy(solidBitmap.getConfig(), true);
 
         Canvas canvas = new Canvas(bitmap);
+
         Paint paint = new Paint();
         paint.setTextSize(32);
-        paint.setColor(0x66ccffff);
-        canvas.drawText("hongbosb not sb   " + testCount, 0, 32*5, paint);
+        paint.setColor(0xff66ccff);
+        canvas.drawText("Touch screen to restart", 0, 32*5, paint);
+        canvas.drawText(String.format("Lasting time %f", time), 0, 32*6, paint);
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+    }
+
+    public void loadScoreTexture(float time) {
+        this.time = time;
+        loadTexture();
     }
 
     private native void init();

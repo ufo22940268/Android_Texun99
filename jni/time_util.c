@@ -19,9 +19,6 @@ viewTimer() {
     currentTime = time(NULL);
 
     //TODO It seems that the flush operation isn't necessary to make
-    //screen redraw. So in what does this api should be used.
-    /*glFlush();*/
-
     return NULL;
 }
 
@@ -56,10 +53,16 @@ moveTimer() {
 
 void*
 highFpsTimer() {
-    lockNode();
-    viewTimer();
-    bendAngleTimer();
-    unlockNode();
+    if (isQuited()) {
+        return NULL;
+    }
+
+    if (isRunning()) {
+        lockNode();
+        viewTimer();
+        bendAngleTimer();
+        unlockNode();
+    }
 
     usleep(HIGH_FPS_INTERVAL);
 
@@ -69,7 +72,13 @@ highFpsTimer() {
 
 void*
 lowFpsTimer() {
-    dataTimer();
+    if (isQuited()) {
+        return NULL;
+    }
+
+    if (isRunning()) {
+        dataTimer();
+    }
 
     usleep(LOW_FPS_INTERVAL);
 

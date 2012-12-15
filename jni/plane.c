@@ -6,11 +6,28 @@ extern int gameStatus;
 float planeX = 0;
 float planeY = 0;
 
-void drawPlane() 
-{
+//Deprecated.
+void drawPlane() {
     translate(planeX, planeY);
     setColor(gColorHandler, 0x66ccff);
     drawCircle();
+}
+
+//TODO
+void createPlanePositionArray(GLfloat *pos) {
+    GLfloat x = planeX;
+    GLfloat y = planeY;
+    pos[0] = x - PLANE_SIZE; pos[1] = y + PLANE_SIZE;
+    pos[2] = x + PLANE_SIZE; pos[3] = y + PLANE_SIZE;
+    pos[4] = x - PLANE_SIZE; pos[5] = y - PLANE_SIZE;
+    pos[6] = x + PLANE_SIZE; pos[7] = y - PLANE_SIZE;
+}
+
+void drawTrollFace() {
+    GLfloat color[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat pos[16];
+    createPlanePositionArray(pos);
+    drawTexture(pos, gTrollTexCoords, color);
 }
 
 bool isMoveIllegal(int x, int y) {

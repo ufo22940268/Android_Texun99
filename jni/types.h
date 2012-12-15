@@ -1,4 +1,4 @@
-#define   PLANE_SIZE             3
+#define   PLANE_SIZE             15
 #define   MOVE_SIZE              3
 #define   DOT_SIZE               3.0f
 
@@ -87,16 +87,24 @@ struct linked_node_s {
 }; 
 typedef struct linked_node_s linked_node;
 
+extern GLfloat *gPlaneCoords;
 extern GLfloat *gShitTexCoords;
 extern GLfloat *gSpeedupAndTracingTexCoords;
 extern GLfloat *gSpeedupTexCoords;
 extern GLfloat *gTracingTexCoords;
+extern GLfloat *gScoreTexCoords;
+extern GLfloat *gTrollTexCoords;
 extern GLfloat sVirtualHeight;
 extern GLfloat sVirtualWidth;
+extern GLuint gColorHandler; 
+extern GLuint gPosHandler; 
+extern GLuint gSizeHandler; 
 extern GLuint gTexProgram;
 extern GLuint gTextureHandlers[1];
 extern GLuint gViewProjectionHandler;
+extern bool DEBUG;
 extern bool dotStatusSpeedUp;
+extern bool error_printed;
 extern float planeX;
 extern float planeY;
 extern int dotCount;

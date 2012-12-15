@@ -2,9 +2,9 @@ let SessionLoad = 1
 if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
+inoremap <silent> <Plug>NERDCommenterInsert  <BS>:call NERDComment('i', "insert")
 inoremap <silent> <S-Tab> =BackwardsSnippet()
 inoremap <C-Tab> 	
-inoremap <silent> <Plug>NERDCommenterInsert  <BS>:call NERDComment('i', "insert")
 snoremap <silent> 	 i<Right>=TriggerSnippet()
 noremap  :TlistToggle
 map  :WMToggle
@@ -28,6 +28,9 @@ vnoremap $2 `>a]`<i[
 vnoremap $1 `>a)`<i(
 snoremap % b<BS>%
 snoremap ' b<BS>'
+nmap ,es :call EditSnippet()
+nmap ,et :exec "e ~/.vim/ftplugin/".&filetype.".vim"
+map ,va :e ~/.config/awesome/rc.lua
 nmap <silent> ,cv <Plug>VCSVimDiff
 nmap <silent> ,cU <Plug>VCSUnlock
 nmap <silent> ,cr <Plug>VCSReview
@@ -122,7 +125,6 @@ nnoremap <silent> ,,E :call EasyMotion#EW(0, 0)
 vnoremap <silent> ,,B :call EasyMotion#WBW(1, 1)
 onoremap <silent> ,,B :call EasyMotion#WBW(0, 1)
 nnoremap <silent> ,,B :call EasyMotion#WBW(0, 1)
-map ,va :e ~/.config/awesome/rc.lua
 map ,pt :set invpaste
 noremap ,u hgUiwe
 noremap ,tcd :call ClearDb()
@@ -154,8 +156,6 @@ map ,al :!adb_connect&&adb logcat
 map ,vxs :sp ~/.vim/snippets/xml.snippets
 map ,vjs :sp ~/.vim/snippets/java.snippets
 nmap ,rr :call ReloadSnippets(snippets_dir, &filetype)
-nmap ,et :exec "e ~/.vim/ftplugin/".&filetype.".vim"
-nmap ,es :call EditSnippet()
 map ,y :YRShow
 map ,s? z=
 map ,sa zg
@@ -189,19 +189,19 @@ nmap ySs <Plug>YSsurround
 nmap yss <Plug>Yssurround
 nmap yS <Plug>YSurround
 nmap ys <Plug>Ysurround
-nnoremap <silent> <Plug>CVSEdit :CVSEdit
-nnoremap <silent> <Plug>CVSEditors :CVSEditors
-nnoremap <silent> <Plug>CVSUnedit :CVSUnedit
-nnoremap <silent> <Plug>CVSWatchers :CVSWatchers
-nnoremap <silent> <Plug>CVSWatchAdd :CVSWatch add
-nnoremap <silent> <Plug>CVSWatchOff :CVSWatch off
-nnoremap <silent> <Plug>CVSWatchOn :CVSWatch on
-nnoremap <silent> <Plug>CVSWatchRemove :CVSWatch remove
 snoremap <Left> bi
 snoremap <Right> a
 snoremap <BS> b<BS>
 snoremap <silent> <S-Tab> i<Right>=BackwardsSnippet()
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)
+nnoremap <silent> <Plug>CVSWatchRemove :CVSWatch remove
+nnoremap <silent> <Plug>CVSWatchOn :CVSWatch on
+nnoremap <silent> <Plug>CVSWatchOff :CVSWatch off
+nnoremap <silent> <Plug>CVSWatchAdd :CVSWatch add
+nnoremap <silent> <Plug>CVSWatchers :CVSWatchers
+nnoremap <silent> <Plug>CVSUnedit :CVSUnedit
+nnoremap <silent> <Plug>CVSEditors :CVSEditors
+nnoremap <silent> <Plug>CVSEdit :CVSEdit
 nnoremap <silent> <Plug>VCSVimDiff :VCSVimDiff
 nnoremap <silent> <Plug>VCSUpdate :VCSUpdate
 nnoremap <silent> <Plug>VCSUnlock :VCSUnlock
@@ -291,19 +291,15 @@ set autoread
 set autowrite
 set background=dark
 set backspace=2
-set balloonexpr=JavaBrowser_Show_Prototype()
 set cindent
 set cinoptions=l1
 set cmdheight=2
 set cscopeverbose
 set expandtab
 set fileencodings=ucs-bom,utf-8,cp936,big5,euc-jp,euc-kr,latin1
-set guitablabel=%{TabGuiCaptionLabel()}
 set helplang=en
 set hidden
 set ignorecase
-set iminsert=0
-set imsearch=0
 set incsearch
 set keywordprg=man
 set laststatus=2
@@ -340,19 +336,23 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +82 ~/workspace/Android_Texun99/jni/gl_util.c
-args ~/workspace/Android_Texun99/\[BufExplorer]
-edit ~/workspace/Android_Texun99/jni/gl_util.c
+badd +339 ~/workspace_tb/Android_Texun99/jni/render.c
+badd +75 ~/workspace_tb/Android_Texun99/jni/time_util.c
+args ~/workspace_tb/Android_Texun99/gen/opengl/demo/BuildConfig.java ~/workspace_tb/Android_Texun99/gen/opengl/demo/R.java ~/workspace_tb/Android_Texun99/src/opengl/demo/MainActivity.java ~/workspace_tb/Android_Texun99/src/opengl/demo/MyGLSurfaceView.java ~/workspace_tb/Android_Texun99/src/opengl/demo/MyRenderer.java ~/workspace_tb/Android_Texun99/src/opengl/demo/NativeRenderer.java
+edit ~/workspace_tb/Android_Texun99/jni/time_util.c
 set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
 set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
+wincmd =
 argglobal
-setlocal keymap=
-setlocal noarabic
+edit ~/workspace_tb/Android_Texun99/jni/time_util.c
 setlocal autoindent
-setlocal balloonexpr=
 setlocal nobinary
 setlocal bufhidden=
 setlocal buflisted
@@ -365,8 +365,6 @@ setlocal colorcolumn=
 setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
 setlocal commentstring=/*%s*/
 setlocal complete=.,w,b,u,t,i
-setlocal concealcursor=
-setlocal conceallevel=0
 setlocal completefunc=
 setlocal nocopyindent
 setlocal cryptmethod=
@@ -424,15 +422,117 @@ setlocal nopreviewwindow
 setlocal quoteescape=\\
 setlocal noreadonly
 setlocal norelativenumber
-setlocal norightleft
-setlocal rightleftcmd=search
 setlocal noscrollbind
 setlocal shiftwidth=4
 setlocal noshortname
 setlocal smartindent
 setlocal softtabstop=4
 setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellcapcheck=
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=%!Pl#Statusline(0,0)
+setlocal suffixesadd=.png,.jpg,.xml,.png,.9.png
+setlocal noswapfile
+setlocal synmaxcol=3000
+if &syntax != 'c'
+setlocal syntax=c
+endif
+setlocal tabstop=8
+setlocal tags=~/workspace_tb/Android_Texun99/.git/c.tags,~/workspace_tb/Android_Texun99/.git/tags,./tags,tags
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal noundofile
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+let s:l = 73 - ((13 * winheight(0) + 14) / 28)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+73
+normal! 04l
+wincmd w
+argglobal
+edit ~/workspace_tb/Android_Texun99/jni/render.c
+setlocal autoindent
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal cindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=l1
+setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'c'
+setlocal filetype=c
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+set linebreak
+setlocal linebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=ccomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norelativenumber
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal smartindent
+setlocal softtabstop=4
+setlocal nospell
+setlocal spellcapcheck=
 setlocal spellfile=
 setlocal spelllang=en
 setlocal statusline=%!Pl#Statusline(0,1)
@@ -443,7 +543,7 @@ if &syntax != 'c'
 setlocal syntax=c
 endif
 setlocal tabstop=8
-setlocal tags=
+setlocal tags=~/workspace_tb/Android_Texun99/.git/c.tags,~/workspace_tb/Android_Texun99/.git/tags,./tags,tags
 setlocal textwidth=0
 setlocal thesaurus=
 setlocal noundofile
@@ -451,12 +551,15 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 77 - ((29 * winheight(0) + 24) / 49)
+let s:l = 335 - ((9 * winheight(0) + 14) / 28)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-77
-normal! 029l
+335
+normal! 04l
+wincmd w
+2wincmd w
+wincmd =
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif
