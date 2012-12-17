@@ -7,7 +7,7 @@
 int updateCount;
 int gameStatus = STATUS_NORMAL;
 long startTime;
-long lastingTime = -1;
+long lastingTime;
 long currentTime;
 
 pthread_mutex_t gNodeLock;
@@ -181,7 +181,6 @@ void initTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     checkGlError("bind texture");
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -231,8 +230,7 @@ void Java_opengl_demo_NativeRenderer_change(JNIEnv *env,
     initPrograms(env, assetManager);
 
     glViewport(0, 0, width, height);
-    /*glClearColor(0.0f, 0.0f, 0.0f, 1.0f);*/
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     gameStatus = STATUS_NORMAL;
 
@@ -260,21 +258,17 @@ void
     }
 }
 
-//TODO
-void finishGame() 
-{
-    gameStatus = STATUS_FINISHED;
-
-    if (lastingTime == -1) {
-        lastingTime = time(NULL) - startTime;
-    }
-}
-
 void quitGame() {
     gameStatus = STATUS_QUITED;
 
     initDatas();
     destroyLocks();
+}
+
+void restartGame() {
+    LOGD("----restart game-------");
+    initDatas();
+    gameStatus = STATUS_NORMAL;
 }
 
 void initDatas() {
@@ -292,34 +286,19 @@ void initDatas() {
 
 void
 Java_opengl_demo_NativeRenderer_test(JNIEnv *env, jobject thiz) {
-    //Test generate texture coords.
-    /*GLfloat ratio = (GLfloat)32/512;*/
-    /*GLfloat *matrix1 = createTextureCoords(32, 32);*/
-    /*LOGD("%f,  %f\n%f,  %f\n%f,  %f\n%f %f",*/
-            /*matrix1[0], matrix1[1], matrix1[2], matrix1[3], matrix1[4], matrix1[5], matrix1[6], matrix1[7]);*/
-    /*LOGD("--------------------------------------------------");*/
-
-    /*GLfloat *matrix2 = createTextureCoords(100, 32);*/
-    /*LOGD("%f,  %f\n%f,  %f\n%f,  %f\n%f %f",*/
-            /*matrix2[0], matrix2[1], matrix2[2], matrix2[3], matrix2[4], matrix2[5], matrix2[6], matrix2[7]);*/
-    /*LOGD("--------------------------------------------------");*/
 }
 
 void loadScoreTexture(JNIEnv *env, jobject thiz) {
     jclass cls = (*env)->GetObjectClass(env, thiz);
     jmethodID method = (*env)->GetMethodID(env, cls, "loadScoreTexture", "(F)V");
-    (*env)->CallVoidMethod(env, thiz, method, 50.0f);
+    (*env)->CallVoidMethod(env, thiz, method, (float)lastingTime);
 }
 
-//TODO draw score status when game finished and when user touch screen 
-//restart game.
 void loadTexture(JNIEnv *env, jobject thiz) {
     jclass cls = (*env)->GetObjectClass(env, thiz);
     jmethodID method = (*env)->GetMethodID(env, cls, "loadScoreTexture", "(F)V");
-    (*env)->CallVoidMethod(env, thiz, method, 50.0f);
+    (*env)->CallVoidMethod(env, thiz, method, 10.0f);
 }
-
-bool neededReloadBackground = false;
 
 void
 Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
@@ -331,25 +310,15 @@ Java_opengl_demo_NativeRenderer_step(JNIEnv *env, jobject thiz) {
 
     loadScreenProjection(gModelProjectionHandler);
 
-
     drawTrollFace();
     drawDots();
     drawFlyStatus();
-
     if (isFinished()) {
         loadScoreTexture(env, thiz);
         drawScore();
     }
 
-    /*//test draw background.*/
-    /*if (neededReloadBackground) {*/
-        /*loadScoreTexture(env, thiz);*/
-        /*neededReloadBackground = false;*/
-    /*}*/
-    /*test_drawBackground();*/
-
     checkGlError("step");
-
     unlockNode();
 }
 
@@ -360,13 +329,11 @@ Java_opengl_demo_MainActivity_quitGame(JNIEnv *env, jobject thiz) {
 
 void
 Java_opengl_demo_MainActivity_pressUp(JNIEnv *env, jobject thiz) {
-    /*LOGD("press Up--------");*/
     movePlaneInDirection(DIRECTION_UP);
 }
 
 void
 Java_opengl_demo_MainActivity_pressDown(JNIEnv *env, jobject thiz) {
-    /*LOGD("press Down--------");*/
     movePlaneInDirection(DIRECTION_DOWN);
 }
 
@@ -383,5 +350,8 @@ Java_opengl_demo_MainActivity_pressRight(JNIEnv *env, jobject thiz) {
 void
 Java_opengl_demo_MyGLSurfaceView_touch(JNIEnv *env, jobject thiz) {
     LOGD("touch");
-    neededReloadBackground = true;
+
+    if (gameStatus == STATUS_FINISHED) {
+        restartGame();
+    }
 }

@@ -2,23 +2,19 @@
 #include <time.h>
 #include "util.h"
 
-extern int gameStatus;
+
 extern long currentTime;
 
 void*
 viewTimer() {
-    //When collision happens, just stop animation.
-    //TODO Display a game report data. such as lasting time, reputation.
     if (isCollision()) {
         finishGame();
     } else {
         updateDots();
     }
 
-    //Update current time.
     currentTime = time(NULL);
 
-    //TODO It seems that the flush operation isn't necessary to make
     return NULL;
 }
 
@@ -84,4 +80,11 @@ lowFpsTimer() {
 
     lowFpsTimer();
     return NULL;
+}
+
+void finishGame() 
+{
+    gameStatus = STATUS_FINISHED;
+
+    lastingTime = time(NULL) - startTime;
 }

@@ -33,7 +33,7 @@ public class NativeRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         change(width, height, mContext.getAssets());
-        loadTexture();
+        loadTexture(0.0f);
     }
 
     @Override
@@ -44,8 +44,7 @@ public class NativeRenderer implements GLSurfaceView.Renderer {
         test();
     }
 
-    private float time; 
-    private void loadTexture() {
+    private void loadTexture(float time) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         Bitmap solidBitmap = BitmapFactory.decodeResource(
@@ -65,8 +64,7 @@ public class NativeRenderer implements GLSurfaceView.Renderer {
     }
 
     public void loadScoreTexture(float time) {
-        this.time = time;
-        loadTexture();
+        loadTexture(time);
     }
 
     private native void init();

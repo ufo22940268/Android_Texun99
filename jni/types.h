@@ -1,5 +1,5 @@
 #define   PLANE_SIZE             15
-#define   MOVE_SIZE              3
+#define   MOVE_SIZE              5
 #define   DOT_SIZE               3.0f
 
 #define   WINDOW_WIDTH           500
@@ -112,3 +112,4 @@ extern int flyStatus;
 extern int flyStatus;
 extern int speed;
 extern long startTime;
+extern long lastingTime;
